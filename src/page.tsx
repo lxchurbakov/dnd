@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-// import { useBetween } from 'use-between';
+import { useBetween } from 'use-between';
 
 const useEventListener = (o, name, cb) => {
     React.useEffect(() => {
@@ -10,28 +10,29 @@ const useEventListener = (o, name, cb) => {
     }, []);
 };
 
-// Step One - the Move Area
+// Step Two - the Move Area but with many blocks
 
-const Area = styled.div`
+const AreaWrap = styled.div`
     position: relative;
     width: 100%;
     height: 100%;
 `;
 
-const Block = styled.div`
+const BlockWrap = styled.div`
     position: absolute;
     cursor: move;
     user-select: none;
 `;
 
-export default () => {
+const useMovingArea = () => {
     const mouseRef = React.useRef(null);
     const nodeRef = React.useRef(null);
 
-    const start = (e) => {
+    const start = (e, $nodeRef) => {
         const { clientX: x, clientY: y } = e;
 
         mouseRef.current = { x, y };
+        nodeRef.current = $nodeRef.current;
     };
 
     useEventListener(window, 'mousemove', (e) => {
@@ -54,11 +55,41 @@ export default () => {
         mouseRef.current = null;
     });
 
+    return { start };
+};
+
+const Area = ({ children, ...props }) => {
+    return (
+        <AreaWrap {...props}>
+            {children}
+        </AreaWrap>
+    );
+};
+
+const Block = ({ movingArea, children, ...props }) => {
+    const nodeRef = React.useRef(null);
+
+    return (
+        <BlockWrap onMouseDown={(e) => movingArea.start(e, nodeRef)} ref={nodeRef} {...props}>
+            {children}
+        </BlockWrap>
+    );
+};
+
+export default () => {
+    const movingArea = useMovingArea();
+
     return (
         <Area>
-            <Block ref={nodeRef} onMouseDown={start}>
+            <Block movingArea={movingArea}>
                 <div style={{ padding: '12px 20px', background: 'white', border: '1px solid black' }}>
                     <h1>Drag me around</h1>
+                </div>
+            </Block>
+
+            <Block movingArea={movingArea}>
+                <div style={{ padding: '12px 20px', background: 'white', border: '1px solid black' }}>
+                    <h1>Drag me around 2</h1>
                 </div>
             </Block>
         </Area>
