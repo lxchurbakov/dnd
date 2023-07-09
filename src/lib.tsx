@@ -2,9 +2,12 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useEventListener } from './hooks';
+import { useEmitter, useEventListener } from './hooks';
 
 const getMousePositionFromEvent = (e) => ({ x: e.clientX, y: e.clientY });
+const isPositionWithinRect = (position, rect: DOMRect) => 
+    position.x >= rect.left && position.x <= rect.right &&
+    position.y >= rect.top && position.y <= rect.bottom
 
 // Level 1 - move stuff around in HTML node
 
@@ -122,7 +125,7 @@ export const Block = ({ immediate, zIndex, position, data, movement, children, s
 
     React.useEffect(() => {
         if (immediate) {
-            movement.start(immediate, nodeRef);
+            movement.start(immediate, nodeRef, data);
         }
     }, [immediate]);
 
@@ -131,7 +134,6 @@ export const Block = ({ immediate, zIndex, position, data, movement, children, s
 
     return (
         <BlockWrap 
-            data-value={JSON.stringify(data)} 
             onMouseDown={(e) => movement.start(e, nodeRef, data)} 
             ref={nodeRef} 
             style={{ zIndex, left, top, ...style }} 
@@ -144,9 +146,10 @@ export const Block = ({ immediate, zIndex, position, data, movement, children, s
 
 // Level 2 - actual drag and drop
 
-const DragWrap = styled.div`
+const DragWrap = styled.div<{ propagate: boolean }>`
     cursor: move;
     user-select: none;
+    pointer-events: ${props => props.propagate ? 'none' : 'all'};
 `;
 
 const OverlayerWrap = styled.div`
@@ -160,13 +163,25 @@ const OverlayerWrap = styled.div`
     z-index: 100;
 `;
 
-export const useDND = ({ }) => {
-    const [block, setBlock] = React.useState(null);
-    const [data, setData] = React.useState(null);
+const DropWrap = styled.div`
+    user-select: none;
+`;
 
+export const useDND = ({ }) => {
+    const emitter = useEmitter<any>();
+
+    const [block, setBlock] = React.useState(null);
+    // const [data, setData] = React.useState(null);
+    // const [id, setId] = 
+    // const [listeners, setListeners] = React.useState([]);
+    
     const movement = useMovement({
-        onStop: () => {
+        onStop: ({ position, data }) => {
             setBlock(null);
+            emitter.emitAsync({ type: 'stop', meta: { position, data }});
+        },
+        onMove: ({ position, data }) => {
+            emitter.emitAsync({ type: 'move', meta: { position, data }});
         },
     });
 
@@ -177,13 +192,13 @@ export const useDND = ({ }) => {
         const position = { x: cursorPosition.x - (rect.width / 2), y: cursorPosition.y - (rect.height / 2) };
 
         setBlock((
-            <Block movement={movement} immediate={e} position={position}>
+            <Block data={data} movement={movement} immediate={e} position={position}>
                 {children({ state: 'drag' })}
             </Block>
         ));
     };
 
-    return { block, start, movement };
+    return { emitter, block, start, movement };
 };
 
 export const Overlayer = ({ dnd, children }: any) => {
@@ -211,8 +226,48 @@ export const Drag = ({ data, dnd, children }: any) => {
     }, [dnd.start, setState]);
 
     return (
-        <DragWrap onMouseDown={start}>
+        <DragWrap propagate={state === 'drag'} onMouseDown={start}>
             {children({ state })}
         </DragWrap>
+    );
+};
+
+export const Drop = ({ dnd, onShadow, onDrop, children }: any) => {
+    const wrapRef = React.useRef(null);
+    const [state, setState] = React.useState('idle');
+
+    React.useEffect(() => {
+        if (state === 'shadow') {
+            onShadow?.(dnd.movement.data);
+        }
+    }, [state]);
+
+    React.useEffect(() => {
+        return dnd.emitter.subscribe(({ type, meta }) => {
+            if (type === 'stop') {
+                const { data } = meta;
+
+                if (state === 'shadow') {
+                    onDrop?.(data);
+                }
+
+                setState('idle');
+            }
+
+            if (type === 'move') {
+                const { position } = meta;
+
+                const rect = wrapRef.current.getBoundingClientRect();
+                const isShadowed = isPositionWithinRect(position, rect); 
+                
+                setState(isShadowed ? 'shadow' : 'idle');
+            }
+        });
+    }, [state, dnd.emitter]);
+
+    return (
+        <DropWrap ref={wrapRef}>
+            {children({ state })}
+        </DropWrap>
     );
 };
