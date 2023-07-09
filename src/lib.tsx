@@ -13,6 +13,7 @@ const AreaWrap = styled.div`
     width: 100%;
     height: 100%;
     overflow: hidden;
+    pointer-events: none;
 `;
 
 const BlockWrap = styled.div`
@@ -109,7 +110,7 @@ export const Zone = ({ children, movement, ...props }) => {
     );
 };
 
-export const Block = ({ zIndex, position, data, movement, children, style, ...props }: any) => {
+export const Block = ({ immediate, zIndex, position, data, movement, children, style, ...props }: any) => {
     const nodeRef = React.useRef(null);
 
     React.useEffect(() => {
@@ -119,20 +120,99 @@ export const Block = ({ zIndex, position, data, movement, children, style, ...pr
         }
     }, []);
 
-    // React.useEffect(() => {
-    //     if (immediate) {
-    //         const { event } = immediate;
+    React.useEffect(() => {
+        if (immediate) {
+            movement.start(immediate, nodeRef);
+        }
+    }, [immediate]);
 
-
-    //         movingArea.start(event, nodeRef);
-    //     }
-    // }, [immediate]);
-
-    // 
+    const left = position ? (position.x + 'px') : 'auto';
+    const top = position ? (position.y + 'px') : 'auto';
 
     return (
-        <BlockWrap data-value={JSON.stringify(data)} onMouseDown={(e) => movement.start(e, nodeRef, data)} ref={nodeRef} style={{ zIndex, ...style }} {...props}>
+        <BlockWrap 
+            data-value={JSON.stringify(data)} 
+            onMouseDown={(e) => movement.start(e, nodeRef, data)} 
+            ref={nodeRef} 
+            style={{ zIndex, left, top, ...style }} 
+            {...props}
+        >
             {children}
         </BlockWrap>
+    );
+};
+
+// Level 2 - actual drag and drop
+
+const DragWrap = styled.div`
+    cursor: move;
+    user-select: none;
+`;
+
+const OverlayerWrap = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vw;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 100;
+`;
+
+export const useDND = ({ }) => {
+    const [block, setBlock] = React.useState(null);
+    const [data, setData] = React.useState(null);
+
+    const movement = useMovement({
+        onStop: () => {
+            setBlock(null);
+        },
+    });
+
+    const start = (e, children, data) => {
+        const cursorPosition = getMousePositionFromEvent(e);
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        const position = { x: cursorPosition.x - (rect.width / 2), y: cursorPosition.y - (rect.height / 2) };
+
+        setBlock((
+            <Block movement={movement} immediate={e} position={position}>
+                {children({ state: 'drag' })}
+            </Block>
+        ));
+    };
+
+    return { block, start, movement };
+};
+
+export const Overlayer = ({ dnd, children }: any) => {
+    return (
+        <OverlayerWrap>
+            <Zone movement={dnd.movement}>
+                {dnd.block}
+            </Zone>
+        </OverlayerWrap>
+    );
+};
+
+export const Drag = ({ data, dnd, children }: any) => {
+    const [state, setState] = React.useState('idle');
+
+    React.useEffect(() => {
+        if (dnd.block === null) {
+            setState('idle');
+        }
+    }, [dnd.block]);
+
+    const start = React.useCallback((e) => {
+        dnd.start(e, children, data); 
+        setState('shadow');
+    }, [dnd.start, setState]);
+
+    return (
+        <DragWrap onMouseDown={start}>
+            {children({ state })}
+        </DragWrap>
     );
 };

@@ -11,6 +11,7 @@ const MAPPING = {
     bc: 'background-color',
     h: 'height',
     br: 'border-radius',
+    p: 'padding',
 } as const;
 
 type MappingKey = keyof typeof MAPPING;
@@ -34,11 +35,11 @@ export const Base = styled.div<any>`
     }};
 `;
 
-export const Flex = styled(Base)<{ gap?: string, align: string, justify?: string }>`
+export const Flex = styled(Base)<{ gap?: string, align?: string, justify?: string }>`
     display: flex;
     gap: ${props => props.gap};
-    align-items: ${props => props.align};
-    justify-content: ${props => props.justify};
+    align-items: ${props => props.align || 'center'};
+    justify-content: ${props => props.justify || 'center'};
 `;
 
 export const Card = styled(Base)`

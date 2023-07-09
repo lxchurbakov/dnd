@@ -2,11 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { useBetween } from 'use-between';
 
-import { Base, Card, Container, Text } from './atoms';
+import { Flex, Base, Card, Container, Text } from './atoms';
 
 import { colors } from './theme';
 
 import { useMovement, Zone, Block } from './lib';
+import { useDND, Overlayer, Drag } from './lib';
 
 export default () => {
     const movement = useMovement({
@@ -41,52 +42,90 @@ export default () => {
         },
     });
 
+    const dnd = useDND({});
+
     return (
-        <Container>
-            <Text mb="18px" size={42} weight={800} color={colors.text}>
-                Drag and Drop explained
-            </Text>
+        <>
+            <Overlayer dnd={dnd} />
 
-            <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
-                Did you ever wonder how Draggable, Beautiful DND and React DND are connected? 
-                Why those quite different things have quite the same name, even that they serve 
-                different purpose and can't replace each other? There's actually a little bit 
-                of hidden complexity behind drag and drop that no one seems to care about. 
-                Let's figure out why.
-            </Text>
+            <Container>
+                <Text mb="18px" size={42} weight={800} color={colors.text}>
+                    Drag and Drop explained
+                </Text>
 
-            <Text mb="32px" mw="600px" size={16} weight={400} color={colors.text}>
-                My name is <a target="_blank" href="//lxchurbakov.com">Alexander Churbakov</a>, I am a fullstack JS developer from Russia, Saint Petersburg. 
-                Visit my website to know more about me or subscribe to get notified about every new project I work on.
-            </Text>
+                <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
+                    Did you ever wonder how Draggable, Beautiful DND and React DND are connected? 
+                    Why those quite different things have quite the same name, even that they serve 
+                    different purpose and can't replace each other? There's actually a little bit 
+                    of hidden complexity behind drag and drop that no one seems to care about. 
+                    Let's figure out why.
+                </Text>
 
-            <Text mb="18px" size={32} weight={800} color={colors.text}>
-                Moving things around
-            </Text>
+                <Text mb="32px" mw="600px" size={16} weight={400} color={colors.text}>
+                    My name is <a target="_blank" href="//lxchurbakov.com">Alexander Churbakov</a>, 
+                    I am a fullstack JS developer with more than 8 years of experience. 
+                    Visit my website to know more about me or subscribe to get notified about news project I work on.
+                </Text>
 
-            <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
-                The first library on the list is not claiming to do any drag and drop stuff, 
-                it only lets you move elements around. Let's try to reimplement that.
-            </Text>
+                <Text mb="18px" size={32} weight={800} color={colors.text}>
+                    Moving things around
+                </Text>
 
-            <Base w="100%" h="500px" bc="#f0f0f0" br="4px">
-                <Zone movement={movement}>
-                    <Block zIndex={2} position={{ x: 20, y: 20 }} data="card-1" movement={movement}>
-                        <Card>
-                            <Text size={22} weight={800}>Movable Card</Text>
-                            <Text size={16} weight={400}>Try to move me around!</Text>
-                        </Card>
-                    </Block>
+                <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
+                    The first library on the list is not claiming to do any drag and drop stuff, 
+                    it only lets you move elements around. Let's try to reimplement that.
+                </Text>
 
-                    <Block zIndex={1} position={{ x: 20, y: 120 }} data="card-2" movement={movement}>
-                        <Card>
-                            <Text size={22} weight={800}>I am a movable card too!</Text>
-                            <Text size={16} weight={400}>Try to move me around!</Text>
-                        </Card>
-                    </Block>
-                </Zone>
-            </Base>
-        </Container>
+                <Base mb="18" w="100%" h="500px" bc="#f0f0f0" br="4px">
+                    <Zone movement={movement}>
+                        <Block zIndex={2} position={{ x: 20, y: 20 }} data="card-1" movement={movement}>
+                            <Card>
+                                <Text size={22} weight={800}>Movable Card</Text>
+                                <Text size={16} weight={400}>Try to move me around!</Text>
+                            </Card>
+                        </Block>
+
+                        <Block zIndex={1} position={{ x: 20, y: 120 }} data="card-2" movement={movement}>
+                            <Card>
+                                <Text size={22} weight={800}>I am a movable card too!</Text>
+                                <Text size={16} weight={400}>Try to move me around!</Text>
+                            </Card>
+                        </Block>
+                    </Zone>
+                </Base>
+
+                <Text mb="32px" mw="600px" size={16} weight={400} color={colors.text}>
+                    That looks good, but what if we want to move elements all over the page, outside of the container they are in?
+                </Text>
+
+                <Text mb="18px" size={32} weight={800} color={colors.text}>
+                    Moving Zone over everything
+                </Text>
+
+                <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
+                    To do so, we need to place a moving zone all over the page. Once the element is being
+                    dragged, we will create a clone block inside that zone. Let's seee how that works.
+                </Text>
+
+                <Base p="12px" mb="18" w="100%" bc="#f0f0f0" br="4px">
+                    <Flex gap="12px" justify="flex-start">
+                        <Drag dnd={dnd}>{({ state }) => (
+                            <Card>
+                                <Text size={22} weight={800}>Card you can take</Text>
+                                <Text size={16} weight={400}>Try to move me around! State: {state}</Text>
+                            </Card>
+                        )}</Drag>
+
+                        <Drag dnd={dnd}>{({ state }) => (
+                            <Card>
+                                <Text size={22} weight={800}>Another one!</Text>
+                                <Text size={16} weight={400}>Try to move me around! State: {state}</Text>
+                            </Card>
+                        )}</Drag>
+                    </Flex>
+                </Base>
+            </Container>
+        </>
     );
 };  
 
