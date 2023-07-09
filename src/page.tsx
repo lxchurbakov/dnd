@@ -2,96 +2,261 @@ import React from 'react';
 import styled from 'styled-components';
 import { useBetween } from 'use-between';
 
-const useEventListener = (o, name, cb) => {
-    React.useEffect(() => {
-        o.addEventListener(name, cb);
+import { Base, Card, Container, Text } from './atoms';
 
-        return () => o.removeEventListener(name, cb);
-    }, []);
-};
+import { colors } from './theme';
+
+import { useMovement, Zone, Block } from './lib';
+
+export default () => {
+    const movement = useMovement({
+        // onStart: (data) => console.log('start', data),
+        // onMove: (data) => console.log('move', data),
+        // onStop: (data) => console.log('stop', data),
+        onOffset: (position) => {
+            // const nodes = movement.list();
+            // const xsnaps = nodes.reduce((acc, node) => acc.concat([node.rect.left, node.rect.right]), []);
+
+            // const xsnapindex = xsnaps.findIndex((snap) => Math.abs(snap - position.x) < 20);
+
+            const x = position.x;
+            const y = position.y;
+
+            return { x, y };
+
+
+    // const list = () => {
+    //     return Array.from(zoneRef.current.childNodes).map((node: any) => ({
+    //         rect: node.getBoundingClientRect(),
+    //         data: JSON.parse(node.getAttribute('data-value')),
+    //     }));
+    // };
+
+            // console.log(xsnaps, position.x)
+
+            // return {
+            //     x: position.x - position.x % 10,
+            //     y: position.y - position.y % 10,
+            // };
+        },
+    });
+
+    return (
+        <Container>
+            <Text mb="18px" size={42} weight={800} color={colors.text}>
+                Drag and Drop explained
+            </Text>
+
+            <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
+                Did you ever wonder how Draggable, Beautiful DND and React DND are connected? 
+                Why those quite different things have quite the same name, even that they serve 
+                different purpose and can't replace each other? There's actually a little bit 
+                of hidden complexity behind drag and drop that no one seems to care about. 
+                Let's figure out why.
+            </Text>
+
+            <Text mb="32px" mw="600px" size={16} weight={400} color={colors.text}>
+                My name is <a target="_blank" href="//lxchurbakov.com">Alexander Churbakov</a>, I am a fullstack JS developer from Russia, Saint Petersburg. 
+                Visit my website to know more about me or subscribe to get notified about every new project I work on.
+            </Text>
+
+            <Text mb="18px" size={32} weight={800} color={colors.text}>
+                Moving things around
+            </Text>
+
+            <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
+                The first library on the list is not claiming to do any drag and drop stuff, 
+                it only lets you move elements around. Let's try to reimplement that.
+            </Text>
+
+            <Base w="100%" h="500px" bc="#f0f0f0" br="4px">
+                <Zone movement={movement}>
+                    <Block zIndex={2} position={{ x: 20, y: 20 }} data="card-1" movement={movement}>
+                        <Card>
+                            <Text size={22} weight={800}>Movable Card</Text>
+                            <Text size={16} weight={400}>Try to move me around!</Text>
+                        </Card>
+                    </Block>
+
+                    <Block zIndex={1} position={{ x: 20, y: 120 }} data="card-2" movement={movement}>
+                        <Card>
+                            <Text size={22} weight={800}>I am a movable card too!</Text>
+                            <Text size={16} weight={400}>Try to move me around!</Text>
+                        </Card>
+                    </Block>
+                </Zone>
+            </Base>
+        </Container>
+    );
+};  
+
+
 
 // Step Two - the Move Area but with many blocks
 
-const AreaWrap = styled.div`
-    position: relative;
-    width: 100%;
-    height: 100%;
-`;
 
-const BlockWrap = styled.div`
-    position: absolute;
-    cursor: move;
-    user-select: none;
-`;
 
-const useMovingArea = () => {
-    const mouseRef = React.useRef(null);
-    const nodeRef = React.useRef(null);
 
-    const start = (e, $nodeRef) => {
-        const { clientX: x, clientY: y } = e;
 
-        mouseRef.current = { x, y };
-        nodeRef.current = $nodeRef.current;
-    };
+// // Step 3 - Drag and Drop
 
-    useEventListener(window, 'mousemove', (e) => {
-        if (mouseRef.current) {
-            const { clientX: x, clientY: y } = e;
+// const NoInteractionArea = styled(Area)`
+//     position: fixed;
+//     top: 0;
+//     left: 0;
+//     width: 100vw;
+//     height: 100vh;
+//     z-index: 100;
+//     pointer-events: none;
+// `;
 
-            const rect = nodeRef.current.getBoundingClientRect();
+// const DragWrap = styled.div`
+//     cursor: move;
+//     user-select: none;
+// `;
 
-            const left = rect.left + (x - mouseRef.current.x);
-            const top = rect.top + (y - mouseRef.current.y);
+// const DropWrap = styled.div`
 
-            nodeRef.current.style.left = left + 'px'; 
-            nodeRef.current.style.top = top + 'px';
+// `;
 
-            mouseRef.current = { x, y };
-        }
-    });
+// const DropContext = React.createContext({} as any);
 
-    useEventListener(window, 'mouseup', (e) => {
-        mouseRef.current = null;
-    });
+// const Provider = ({ children }) => {
+//     const [blocks, setBlocks] = React.useState([]);
+//     const [data, setData] = React.useState(null);
+//     const active = React.useMemo(() => blocks.length > 0, [blocks]);
 
-    return { start };
-};
+//     const movingArea = useMovingArea({ onStop: () => setBlocks([]) });
 
-const Area = ({ children, ...props }) => {
-    return (
-        <AreaWrap {...props}>
-            {children}
-        </AreaWrap>
-    );
-};
+//     const push = (event, predicate, data) => {
+//         const rect = event.target.getBoundingClientRect();
+//         const offset = { x: event.clientX - rect.width / 2, y: event.clientY - rect.height / 2 };
 
-const Block = ({ movingArea, children, ...props }) => {
-    const nodeRef = React.useRef(null);
+//         setBlocks(($) => $.concat([(
+//             <Block key={Math.random()} immediate={{ offset, event }} movingArea={movingArea} style={{ pointerEvents: 'none' }}>
+//                 {predicate({ drag: false, use: true })}
+//             </Block>
+//         )]));
 
-    return (
-        <BlockWrap onMouseDown={(e) => movingArea.start(e, nodeRef)} ref={nodeRef} {...props}>
-            {children}
-        </BlockWrap>
-    );
-};
+//         setData(data);
+//     };
 
-export default () => {
-    const movingArea = useMovingArea();
+//     return (
+//         <DropContext.Provider value={{ active, push, data }}>
+//             <NoInteractionArea>
+//                 {blocks}
+//             </NoInteractionArea>
 
-    return (
-        <Area>
-            <Block movingArea={movingArea}>
-                <div style={{ padding: '12px 20px', background: 'white', border: '1px solid black' }}>
-                    <h1>Drag me around</h1>
-                </div>
-            </Block>
+//             {children}
+//         </DropContext.Provider>
+//     );
+// };
 
-            <Block movingArea={movingArea}>
-                <div style={{ padding: '12px 20px', background: 'white', border: '1px solid black' }}>
-                    <h1>Drag me around 2</h1>
-                </div>
-            </Block>
-        </Area>
-    );
-};
+// const Drag = ({ data, children, ...props }) => {
+//     const [drag, setDrag] = React.useState(false);
+//     const dropContext = React.useContext(DropContext);
+
+//     const start = (e) => {
+//         dropContext.push(e, children, data);
+//         setDrag(true);
+//     };
+
+//     React.useEffect(() => {
+//         if (!dropContext.active) {
+//             setDrag(false);
+//         }
+//     }, [dropContext.active]);
+
+//     return (
+//         <DragWrap onMouseDown={start} {...props}>
+//             {children({ drag, use: false })}
+//         </DragWrap>
+//     );
+// };  
+
+// const Drop = ({ onDrop, children }) => {
+//     const [over, setOver] = React.useState(false);
+//     const dropContext = React.useContext(DropContext);
+
+//     const mouseOver = () => {
+//         if (dropContext.active) {
+//             setOver(true);
+//         }
+//     };
+
+//     const mouseOut = () => {
+//         setOver(false);
+//     };
+
+//     const drop = () => {
+//         onDrop(dropContext.data);
+//     };
+
+//     return (
+//         <DropWrap onMouseOver={mouseOver} onMouseOut={mouseOut} onMouseUp={drop}>
+//             {children({ over })}
+//         </DropWrap>
+//     );
+// };
+
+
+// export default () => {
+//     // const movingArea = useMovingArea();
+
+//     return (
+//         <Provider>
+//             <Flex mt="12px" align="center" justify="center" gap="12px">
+//                 <Card>
+//                     <Drag data="asd" style={{ marginBottom: 12 }}>
+//                         {({ drag, use }) => (
+//                             <Element>
+//                                 Table ({drag ? 'drag' : (use ? 'use': 'static')})
+//                             </Element>
+//                         )}
+//                     </Drag>
+
+//                     <Drag data="qwe">
+//                         {({ drag, use }) => (
+//                             <Element>
+//                                 Table ({drag ? 'drag' : (use ? 'use': 'static')})
+//                             </Element>
+//                         )}
+//                     </Drag>
+//                 </Card>
+
+//                 <Card>
+//                     <Drop onDrop={console.log}>
+//                         {({ over }) => (
+//                             <Element>
+//                                 Drop ({over ? 'over' : 'none'})
+
+//                                 <Drop onDrop={console.log}>
+//                                     {({ over }) => (
+//                                         <Element>
+//                                             Drop ({over ? 'over' : 'none'})
+//                                         </Element>
+//                                     )}
+//                                 </Drop>
+//                             </Element>
+//                         )}
+//                     </Drop>
+//                 </Card>
+//             </Flex>
+            
+//         </Provider>
+//     );
+// };
+
+{/* <Area>
+    <Block movingArea={movingArea}>
+        <div style={{ padding: '12px 20px', background: 'white', border: '1px solid black' }}>
+            <h1>Drag me around</h1>
+        </div>
+    </Block>
+
+    <Block movingArea={movingArea}>
+        <div style={{ padding: '12px 20px', background: 'white', border: '1px solid black' }}>
+            <h1>Drag me around 2</h1>
+        </div>
+    </Block>
+</Area> */}
