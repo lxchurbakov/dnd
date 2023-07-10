@@ -3,4 +3,4 @@ export const colors = {
 }; 
 
 export const bodyWidth = 1080;
-export const fontFamily = 'Raleway, sans-serif';
+export const fontFamily = 'Circular, sans-serif';

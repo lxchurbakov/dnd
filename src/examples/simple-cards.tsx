@@ -12,8 +12,8 @@ export default ({ dnd }) => {
 
     const [items, setItems] = React.useState([
         { id: 1, name: 'Alex', age: 27, description: 'Lazy student, but great sometimes' },
-        { id: 2, name: 'Marcus', age: 20, description: 'Great student, but lazy sometimes' },
-        { id: 3, name: 'Mikaela', age: 20, description: 'Always late' },
+        { id: 2, name: 'Marcus', age: 24, description: 'Great student, but lazy sometimes' },
+        { id: 3, name: 'Mikaela', age: 25, description: 'Always late' },
     ]);
 
     React.useEffect(() => {
