@@ -69,7 +69,7 @@ export default ({ dnd }) => {
                 Classic drag and drop example. Sorting a list.
             </Text>
 
-            <Drop dnd={dnd} onShadow={arrange}>{() => (
+            <Drop id={2} dnd={dnd} onShadow={arrange}>{() => (
                 <Base p="24px" mb="18" w="100%" bc="#f0f0f0" br="4px">
                     <Flex gap="12px" ref={holdRef} direction="column" align="flex-start">
                         {items.map((item) => (

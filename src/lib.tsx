@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useEmitter, useEventListener } from './extra/hooks';
+import { useEventListener } from './extra/hooks';
 
 const getMousePositionFromEvent = (e) => ({ x: e.clientX, y: e.clientY });
 const isPositionWithinRect = (position, rect: DOMRect) => 
@@ -42,22 +42,11 @@ export const useMovement = ({ onStart, onMove, onStop, onOffset }: any) => {
     const zone = React.useCallback((ref) => {
         zoneRef.current = ref.current;
     }, []);
-
-    const getPosition = (event) => {
-        // const zone = zoneRef.current.getBoundingClientRect();
-
-        return {
-            x: event.clientX,
-            y: event.clientY,
-            // x: event.clientX - zone.left,
-            // y: event.clientY - zone.top,
-        };
-    };
-
+    
     // Then we can actually start moving stuff by accepting
     // the event (to get position) and reference to the node
     const start = React.useCallback((event, nodeRef, data) => {
-        const position = getPosition(event);
+        const position = getMousePositionFromEvent(event);
         const rect = nodeRef.current.getBoundingClientRect();
         const zone = zoneRef.current.getBoundingClientRect();
 
@@ -67,11 +56,11 @@ export const useMovement = ({ onStart, onMove, onStop, onOffset }: any) => {
 
         setData(data);
         onStart?.({ position, data });
-    }, [data]);
+    }, [onStart, data]);
     
     useEventListener(window, 'mousemove', (event) => {
         if (mouseRef.current) {
-            const position = getPosition(event);
+            const position = getMousePositionFromEvent(event);
 
             rectRef.current.x = rectRef.current.x + (position.x - mouseRef.current.x);
             rectRef.current.y = rectRef.current.y + (position.y -  mouseRef.current.y);
@@ -88,7 +77,7 @@ export const useMovement = ({ onStart, onMove, onStop, onOffset }: any) => {
     }, [data, onMoveDebounced]);
 
     useEventListener(window, 'mouseup', (event) => {
-        const position = getPosition(event);
+        const position = getMousePositionFromEvent(event);
 
         setData(null);
         dragRef.current = null;
@@ -170,26 +159,30 @@ const DropWrap = styled.div`
 `;
 
 export const useDND = ({ }) => {
-    const emitter = useEmitter<any>();
-
+    const [listeners, setListeners] = React.useState([]);
     const [block, setBlock] = React.useState(null);
-    // const [data, setData] = React.useState(null);
-    // const [id, setId] = 
-    // const [listeners, setListeners] = React.useState([]);
     
+    const emit = React.useCallback((data) => 
+        listeners.forEach((listener) => listener(data)), [listeners]);    
+
+    const listen = React.useCallback((l) => {
+        setListeners(($) => $.concat([l]));
+        return () => setListeners(($) => $.filter(($$) => $$ !== l));
+    }, [setListeners]);
+
     const movement = useMovement({
         onStop: ({ position, data }) => {
             setBlock(null);
-            emitter.emitParallelSync({ type: 'stop', meta: { position, data }});
+            emit({ type: 'stop', meta: { position, data }});
         },
         onMove: ({ position, data }) => {
-            emitter.emitParallelSync({ type: 'move', meta: { position, data }});
+            emit({ type: 'move', meta: { position, data }});
         },
     });
 
     const start = (e, children, data) => {
-        const cursorPosition = getMousePositionFromEvent(e);
         const rect = e.currentTarget.getBoundingClientRect();
+        const cursorPosition = getMousePositionFromEvent(e);
 
         const position = { x: cursorPosition.x - (rect.width / 2), y: cursorPosition.y - (rect.height / 2) };
 
@@ -200,7 +193,7 @@ export const useDND = ({ }) => {
         ));
     };
 
-    return { emitter, block, start, movement };
+    return { emit, listen, block, start, movement };
 };
 
 export const Overlayer = ({ dnd, children }: any) => {
@@ -234,12 +227,12 @@ export const Drag = ({ data, dnd, children }: any) => {
     );
 };
 
-export const Drop = ({ dnd, onShadow, onDrop, children }: any) => {
+export const Drop = ({ id, dnd, onShadow, onDrop, children }: any) => {
     const wrapRef = React.useRef(null);
     const [state, setState] = React.useState('idle');
 
     React.useEffect(() => {
-        return dnd.emitter.subscribe(({ type, meta }) => {
+        return dnd.listen(({ type, meta }) => {
             if (type === 'stop') {
                 const { position, data } = meta;
 

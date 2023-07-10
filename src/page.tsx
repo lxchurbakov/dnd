@@ -48,7 +48,7 @@ export default () => {
     const [message, setMessage] = React.useState('');
 
     const handleDrop = React.useCallback(({ data }) => {
-        setMessage(`Just dropped ${data}!`);
+        setMessage(`Just dropped ${JSON.stringify(data)}!`);
         setTimeout(() => {
             setMessage('');
         }, 5000);
@@ -119,7 +119,7 @@ export default () => {
 
                 <Base p="12px" mb="18px" w="100%" bc="#f0f0f0" br="4px">
                     <Flex gap="12px" justify="flex-start">
-                        <Drag data={{ type: 'example', value: 2 }} dnd={dnd}>{({ state }) => (
+                        <Drag data={{ type: 'example', value: 1 }} dnd={dnd}>{({ state }) => (
                             <Card>
                                 <Text size={22} weight={800}>Card you can take</Text>
                                 <Text size={16} weight={400}>Try to move me around! State: {state}</Text>
@@ -140,7 +140,7 @@ export default () => {
                     Let's add {'<Drop />'} element and make it behave like the dropzone.
                 </Text>
 
-                <Drop dnd={dnd} onDrop={handleDrop}>{({ state }) => (
+                <Drop id={1} dnd={dnd} onDrop={handleDrop}>{({ state }) => (
                     <Base p="24px" mb="18" w="100%" bc="#f0f0f0" br="4px">
                         <Text size={16} weight={400}>{message} Dropzone, state: {state}</Text>
                     </Base>
@@ -157,7 +157,3 @@ export default () => {
         </>
     );
 };  
-
-{/*  */}
-
-
