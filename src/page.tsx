@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { useBetween } from 'use-between';
 
-import { Flex, Base, Card, Container, Text } from './atoms';
+import { Flex, Base, Card, Container, Text } from './extra/atoms';
 
-import { colors } from './theme';
+import { colors } from './extra/theme';
 
 import { useMovement, Zone, Block } from './lib';
 import { useDND, Overlayer, Drag, Drop } from './lib';

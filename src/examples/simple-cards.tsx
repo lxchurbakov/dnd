@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Shadowed, Flex, Base, Card, Text } from '../atoms';
-import { colors } from '../theme';
+import { Shadowed, Flex, Base, Card, Text } from '../extra/atoms';
+import { colors } from '../extra/theme';
 
 import { Drag, Drop } from '../lib';
 

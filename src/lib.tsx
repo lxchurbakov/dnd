@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useEmitter, useEventListener } from './hooks';
+import { useEmitter, useEventListener } from './extra/hooks';
 
 const getMousePositionFromEvent = (e) => ({ x: e.clientX, y: e.clientY });
 const isPositionWithinRect = (position, rect: DOMRect) => 
