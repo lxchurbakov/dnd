@@ -44,11 +44,13 @@ export const useMovement = ({ onStart, onMove, onStop, onOffset }: any) => {
     }, []);
 
     const getPosition = (event) => {
-        const zone = zoneRef.current.getBoundingClientRect();
+        // const zone = zoneRef.current.getBoundingClientRect();
 
         return {
-            x: event.clientX - zone.left,
-            y: event.clientY - zone.top,
+            x: event.clientX,
+            y: event.clientY,
+            // x: event.clientX - zone.left,
+            // y: event.clientY - zone.top,
         };
     };
 
@@ -178,10 +180,10 @@ export const useDND = ({ }) => {
     const movement = useMovement({
         onStop: ({ position, data }) => {
             setBlock(null);
-            emitter.emitAsync({ type: 'stop', meta: { position, data }});
+            emitter.emitParallelSync({ type: 'stop', meta: { position, data }});
         },
         onMove: ({ position, data }) => {
-            emitter.emitAsync({ type: 'move', meta: { position, data }});
+            emitter.emitParallelSync({ type: 'move', meta: { position, data }});
         },
     });
 
@@ -237,33 +239,31 @@ export const Drop = ({ dnd, onShadow, onDrop, children }: any) => {
     const [state, setState] = React.useState('idle');
 
     React.useEffect(() => {
-        if (state === 'shadow') {
-            onShadow?.(dnd.movement.data);
-        }
-    }, [state]);
-
-    React.useEffect(() => {
         return dnd.emitter.subscribe(({ type, meta }) => {
             if (type === 'stop') {
-                const { data } = meta;
+                const { position, data } = meta;
 
                 if (state === 'shadow') {
-                    onDrop?.(data);
+                    onDrop?.({ position, data});
                 }
 
                 setState('idle');
             }
 
             if (type === 'move') {
-                const { position } = meta;
+                const { position, data } = meta;
 
                 const rect = wrapRef.current.getBoundingClientRect();
                 const isShadowed = isPositionWithinRect(position, rect); 
-                
+
                 setState(isShadowed ? 'shadow' : 'idle');
+
+                if (isShadowed) {
+                    onShadow?.({ data, position });
+                }
             }
         });
-    }, [state, dnd.emitter]);
+    }, [setState, onShadow, onDrop, state, dnd.emitter]);
 
     return (
         <DropWrap ref={wrapRef}>

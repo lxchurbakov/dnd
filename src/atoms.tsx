@@ -35,8 +35,9 @@ export const Base = styled.div<any>`
     }};
 `;
 
-export const Flex = styled(Base)<{ gap?: string, align?: string, justify?: string }>`
+export const Flex = styled(Base)<{ gap?: string, align?: string, justify?: string, direction?: string }>`
     display: flex;
+    flex-direction: ${props => props.direction || 'row'};
     gap: ${props => props.gap};
     align-items: ${props => props.align || 'center'};
     justify-content: ${props => props.justify || 'center'};
@@ -62,3 +63,31 @@ export const Container = styled(Base)`
     padding: 80px 20px;
     margin: 0 auto;
 `;
+
+const ShadowWrap = styled.div<{ isShadowed: boolean }>`
+    width: 100%;
+    height: 100%;
+    position: relative;
+`;
+
+const Shadow = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    background: #bfd5df;
+`;
+
+export const Shadowed = ({ isShadowed, children }) => {
+    return (
+        <ShadowWrap isShadowed={isShadowed}>
+            {children}
+
+            {isShadowed && (
+                <Shadow />
+            )}
+        </ShadowWrap>
+    )
+};

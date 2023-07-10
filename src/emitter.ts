@@ -9,7 +9,7 @@ export class EventEmitter<T> {
 	listeners: { listener: Listener<T>, priority: number }[] = [];
 
 	subscribe = (listener: Listener<T>, priority: number = 0) => {
-		this.listeners.push({ listener ,priority });
+		this.listeners.push({ listener, priority });
         return () => {
             this.listeners = _.remove(this.listeners, (l) => l.listener === listener);
         };

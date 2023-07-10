@@ -9,6 +9,8 @@ import { colors } from './theme';
 import { useMovement, Zone, Block } from './lib';
 import { useDND, Overlayer, Drag, Drop } from './lib';
 
+import SimpleCards from './examples/simple-cards';
+
 export default () => {
     const movement = useMovement({
         // onStart: (data) => console.log('start', data),
@@ -45,7 +47,7 @@ export default () => {
     const dnd = useDND({});
     const [message, setMessage] = React.useState('');
 
-    const handleDrop = React.useCallback((data) => {
+    const handleDrop = React.useCallback(({ data }) => {
         setMessage(`Just dropped ${data}!`);
         setTimeout(() => {
             setMessage('');
@@ -117,14 +119,14 @@ export default () => {
 
                 <Base p="12px" mb="18px" w="100%" bc="#f0f0f0" br="4px">
                     <Flex gap="12px" justify="flex-start">
-                        <Drag data={1} dnd={dnd}>{({ state }) => (
+                        <Drag data={{ type: 'example', value: 2 }} dnd={dnd}>{({ state }) => (
                             <Card>
                                 <Text size={22} weight={800}>Card you can take</Text>
                                 <Text size={16} weight={400}>Try to move me around! State: {state}</Text>
                             </Card>
                         )}</Drag>
 
-                        <Drag data={2} dnd={dnd}>{({ state }) => (
+                        <Drag data={{ type: 'example', value: 2 }} dnd={dnd}>{({ state }) => (
                             <Card>
                                 <Text size={22} weight={800}>Another one!</Text>
                                 <Text size={16} weight={400}>Try to move me around! State: {state}</Text>
@@ -144,15 +146,18 @@ export default () => {
                     </Base>
                 )}</Drop>
 
-                <Text mb="32px" mw="600px" size={16} weight={400} color={colors.text}>
+                <Text mb="48px" mw="600px" size={16} weight={400} color={colors.text}>
                     Yep, that's it! That's actually a full synthetic drag and drop on top of
                     moving zone in less than 100 lines of code! By separating these actions and
                     making it possible to use them together we've achieved the superpower. Let's see what we can do.
                 </Text>
+
+                <SimpleCards dnd={dnd} />
             </Container>
         </>
     );
 };  
 
+{/*  */}
 
 
