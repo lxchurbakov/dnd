@@ -227,7 +227,7 @@ export const Drag = ({ data, dnd, children }: any) => {
     );
 };
 
-export const Drop = ({ id, dnd, onShadow, onDrop, children }: any) => {
+export const Drop = ({ dnd, onShadow, onDrop, children }: any) => {
     const wrapRef = React.useRef(null);
     const [state, setState] = React.useState('idle');
 

@@ -18,6 +18,8 @@ type MappingKey = keyof typeof MAPPING;
 export type BaseProps = Map<MappingKey, string>;
 
 export const Base = styled.div<any>`
+    box-sizing: border-box;
+    
     ${(props) => {
         const mapped = Object.keys(props as any).reduce((acc, key) => {
             if (MAPPING[key]) {

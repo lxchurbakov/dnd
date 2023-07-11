@@ -10,6 +10,7 @@ import { useMovement, Zone, Block } from './lib';
 import { useDND, Overlayer, Drag, Drop } from './lib';
 
 import SimpleCards from './examples/simple-cards';
+import Kanban from './examples/kanban';
 
 export default () => {
     const movement = useMovement({
@@ -140,7 +141,7 @@ export default () => {
                     Let's add {'<Drop />'} element and make it behave like the dropzone.
                 </Text>
 
-                <Drop id={1} dnd={dnd} onDrop={handleDrop}>{({ state }) => (
+                <Drop dnd={dnd} onDrop={handleDrop}>{({ state }) => (
                     <Base p="24px" mb="18" w="100%" bc="#f0f0f0" br="4px">
                         <Text size={16} weight={400}>{message} Dropzone, state: {state}</Text>
                     </Base>
@@ -152,7 +153,8 @@ export default () => {
                     making it possible to use them together we've achieved the superpower. Let's see what we can do.
                 </Text>
 
-                <SimpleCards dnd={dnd} />
+                <SimpleCards mb="48px" dnd={dnd} />
+                <Kanban mb="48px" dnd={dnd} />
             </Container>
         </>
     );

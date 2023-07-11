@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { Shadowed, Flex, Base, Card, Text } from '../extra/atoms';
+import { BaseProps, Shadowed, Flex, Base, Card, Text } from '../extra/atoms';
 import { colors } from '../extra/theme';
 
 import { Drag, Drop } from '../lib';
 
-export default ({ dnd }) => {
+export default ({ dnd, ...props }: any) => {
     const holdRef = React.useRef(null);
     const [sizes, setSizes] = React.useState([]);
     const [hint, setHint] = React.useState('');
@@ -60,7 +60,7 @@ export default ({ dnd }) => {
     }, [items, sizes]);
 
     return (
-        <Base>
+        <Base {...props}>
             <Text mb="18px" size={32} weight={800} color={colors.text}>
                 Drag and Drop arrangement
             </Text>
@@ -69,8 +69,8 @@ export default ({ dnd }) => {
                 Classic drag and drop example. Sorting a list.
             </Text>
 
-            <Drop id={2} dnd={dnd} onShadow={arrange}>{() => (
-                <Base p="24px" mb="18" w="100%" bc="#f0f0f0" br="4px">
+            <Drop dnd={dnd} onShadow={arrange}>{() => (
+                <Base p="24px" w="100%" bc="#f0f0f0" br="4px">
                     <Flex gap="12px" ref={holdRef} direction="column" align="flex-start">
                         {items.map((item) => (
                             <Drag data={{ type: 'simple-cards', value: item.id }} key={item.id} dnd={dnd}>{({ state }) => (
