@@ -206,8 +206,11 @@ export const Overlayer = ({ dnd, children }: any) => {
     );
 };
 
+const equalDeep = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
 export const Drag = ({ data, dnd, children }: any) => {
     const [state, setState] = React.useState('idle');
+    const isShadowed = React.useMemo(() => equalDeep(dnd.movement.data, data), [dnd.movement.data, data]);
 
     React.useEffect(() => {
         if (dnd.block === null) {
@@ -217,17 +220,16 @@ export const Drag = ({ data, dnd, children }: any) => {
 
     const start = React.useCallback((e) => {
         dnd.start(e, children, data); 
-        setState('shadow');
     }, [dnd.start, setState]);
 
     return (
         <DragWrap propagate={state === 'drag'} onMouseDown={start}>
-            {children({ state })}
+            {children({ state: isShadowed ? 'shadow' : 'idle' })}
         </DragWrap>
     );
 };
 
-export const Drop = ({ dnd, onShadow, onDrop, children }: any) => {
+export const Drop = ({ id, dnd, onShadow, onDrop, children }: any) => {
     const wrapRef = React.useRef(null);
     const [state, setState] = React.useState('idle');
 
@@ -252,7 +254,7 @@ export const Drop = ({ dnd, onShadow, onDrop, children }: any) => {
                 setState(isShadowed ? 'shadow' : 'idle');
 
                 if (isShadowed) {
-                    onShadow?.({ data, position });
+                    onShadow?.({ data, position, id });
                 }
             }
         });
