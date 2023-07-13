@@ -12,6 +12,7 @@ import { useDND, Overlayer, Drag, Drop } from './lib';
 import SimpleCards from './examples/simple-cards';
 import Kanban from './examples/kanban';
 import Miro from './examples/miro';
+import Builder from './examples/ui-builder';
 
 export default () => {
     const movement = useMovement({
@@ -60,7 +61,7 @@ export default () => {
         <>
             <Overlayer dnd={dnd} />
 
-            <Container>
+            <Container pt="80px">
                 <Text mb="18px" size={42} weight={800} color={colors.text}>
                     Drag and Drop explained
                 </Text>
@@ -158,7 +159,8 @@ export default () => {
                 <Kanban mb="48px" dnd={dnd} />
             </Container>
 
-            <Miro dnd={dnd} />
+            <Miro mb="42px" dnd={dnd} />
+            <Builder dnd={dnd} />
         </>
     );
 };  

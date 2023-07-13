@@ -12,7 +12,9 @@ const MAPPING = {
     h: 'height',
     br: 'border-radius',
     p: 'padding',
-    background: 'background'
+    background: 'background',
+    pb: 'padding-bottom',
+    pt: 'padding-top',
 } as const;
 
 type MappingKey = keyof typeof MAPPING;
@@ -63,7 +65,8 @@ export const Text = styled(Base)<{ color?: string, size: number, weight: number,
 
 export const Container = styled(Base)`
     max-width: ${theme.bodyWidth}px;
-    padding: 80px 20px;
+    padding-left: 20px;
+    padding-right: 20px;
     margin: 0 auto;
 `;
 

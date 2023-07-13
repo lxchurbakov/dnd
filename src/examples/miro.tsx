@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Flex, Base, Card, Text } from '../extra/atoms';
+import { Flex, Base, Card, Text, Container } from '../extra/atoms';
 import { colors } from '../extra/theme';
 
 import { Zone, Drop, Drag, Block, useMovement } from '../lib';
@@ -66,7 +66,7 @@ export default ({ dnd, ...props }: any) => {
 
     return (
         <Base {...props}>
-            <Base p="20px">
+            <Container>
                 <Text mb="18px" size={32} weight={800} color={colors.text}>
                     Miro
                 </Text>
@@ -74,7 +74,7 @@ export default ({ dnd, ...props }: any) => {
                 <Text mb="18px" mw="600px" size={16} weight={400} color={colors.text}>
                     Moving Area inside Drag and Drop context.
                 </Text>
-            </Base>
+            </Container>
 
             <RelativeBase ref={baseRef} w="100%" h="800px" background="linear-gradient(217deg, #3F51B5AA, #03A9F4AA)">
                 <Overlay p="12px">
