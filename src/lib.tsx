@@ -17,6 +17,7 @@ const AreaWrap = styled.div`
     height: 100%;
     overflow: hidden;
     pointer-events: none;
+    z-index: 10;
 `;
 
 const BlockWrap = styled.div`
@@ -24,6 +25,7 @@ const BlockWrap = styled.div`
     cursor: move;
     user-select: none;
     pointer-events: all;
+    z-index: 20;
 `;
 
 export const useMovement = ({ onStart, onMove, onStop, onOffset }: any) => {
@@ -229,7 +231,7 @@ export const Drag = ({ data, dnd, children }: any) => {
     );
 };
 
-export const Drop = ({ id, dnd, onShadow, onDrop, children }: any) => {
+export const Drop = ({ id, dnd, onShadow, onDrop, children, ...props }: any) => {
     const wrapRef = React.useRef(null);
     const [state, setState] = React.useState('idle');
 
@@ -261,7 +263,7 @@ export const Drop = ({ id, dnd, onShadow, onDrop, children }: any) => {
     }, [setState, onShadow, onDrop, state, dnd.emitter]);
 
     return (
-        <DropWrap ref={wrapRef}>
+        <DropWrap ref={wrapRef} {...props}>
             {children({ state })}
         </DropWrap>
     );

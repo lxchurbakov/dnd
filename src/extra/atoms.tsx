@@ -12,6 +12,7 @@ const MAPPING = {
     h: 'height',
     br: 'border-radius',
     p: 'padding',
+    background: 'background'
 } as const;
 
 type MappingKey = keyof typeof MAPPING;
@@ -47,9 +48,9 @@ export const Flex = styled(Base)<{ gap?: string, align?: string, justify?: strin
 
 export const Card = styled(Base)`
     background: white;
-    padding: 12px;
     border-radius: 4px;
     border: 1px solid #ddd;
+    padding: ${props => props.p || '12px'};
 `;
 
 export const Text = styled(Base)<{ color?: string, size: number, weight: number, lineHeight?: string }>`

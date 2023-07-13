@@ -11,6 +11,7 @@ import { useDND, Overlayer, Drag, Drop } from './lib';
 
 import SimpleCards from './examples/simple-cards';
 import Kanban from './examples/kanban';
+import Miro from './examples/miro';
 
 export default () => {
     const movement = useMovement({
@@ -156,6 +157,8 @@ export default () => {
                 <SimpleCards mb="48px" dnd={dnd} />
                 <Kanban mb="48px" dnd={dnd} />
             </Container>
+
+            <Miro dnd={dnd} />
         </>
     );
 };  
